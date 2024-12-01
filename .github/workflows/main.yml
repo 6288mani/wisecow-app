@@ -9,7 +9,7 @@ jobs:
     runs-on: self-hosted  # This ensures it runs on your self-hosted runner
     
     # Optionally, you can specify the labels for the self-hosted runner if needed
-    # runs-on: [self-hosted, ubuntu-latest]
+    # runs-on: [self-hosted, ubuntu-latest].
     
     steps:
     - name: Checkout repository
