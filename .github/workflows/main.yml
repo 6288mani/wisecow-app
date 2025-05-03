@@ -57,13 +57,22 @@ jobs:
 
       - name: Verify kubectl
         run: kubectl version --client
+      
+      - name: List files
+        run: |
+          cd ../../
+          if [ -f "deployment.yml" ]; then
+            echo "deployment.yml exists."
+            exit 0
+          else
+            echo "deployment.yml does not exist."
+            exit 1
+          fi
+        
   Deploy_to_Kind:
     runs-on: ubuntu-latest
     needs: kind_Cluster
     steps:
-      - name: List files
-        run: cd ../../ | ls -R
-        
       - name: Apply Kubernetes Deployment
         run: |
           kubectl apply -f ../../deployment.yml
