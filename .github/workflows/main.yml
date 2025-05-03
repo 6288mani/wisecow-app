@@ -6,9 +6,9 @@ on:
       - main
 
 jobs:
+  
   Build_Docker_image:
     runs-on: ubuntu-latest
-    needs: Pre-Requi
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
