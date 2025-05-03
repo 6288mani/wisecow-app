@@ -27,25 +27,17 @@ jobs:
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/wisecow-app:latest
 
-  Install_kind_Cluster:
+  kind_Cluster:
     runs-on: ubuntu-latest
     needs: Build_Docker_image
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        
-      - name: Install KinD
-        run: |
-          KUBECTL_VERSION=$(curl -s https://dl.k8s.io/release/stable.txt)
-          curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
-          chmod +x kubectl
-          sudo mv kubectl /usr/local/bin/
 
-      - name: Install kubectl
-        run: |
-          curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-          chmod +x kubectl
-          sudo mv kubectl /usr/local/bin/
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.29.0'
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.5.0
@@ -61,14 +53,13 @@ jobs:
       - name: Set kubeconfig
         run: |
           mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/confi
+            echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
 
       - name: Verify kubectl
         run: kubectl version --client
-        
   Deploy_to_Kind:
     runs-on: ubuntu-latest
-    needs: Install_kind_Cluster
+    needs: kind_Cluster
     steps:
       - name: Apply Kubernetes Deployment
         run: |
