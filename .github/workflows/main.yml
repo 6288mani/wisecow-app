@@ -11,7 +11,7 @@ jobs:
     steps:            
       - name: List files
         run: |
-          cd ../../
+          cd ../../../
           if [ -f "deployment.yml" ]; then
             echo "deployment.yml exists."
             exit 0
