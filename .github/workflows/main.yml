@@ -62,7 +62,7 @@ jobs:
     needs: kind_Cluster
     steps:
       - name: List files
-        run: cd ../ | ls -R
+        run: cd ../../ | ls -R
         
       - name: Apply Kubernetes Deployment
         run: |
