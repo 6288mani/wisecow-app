@@ -27,7 +27,10 @@ jobs:
 
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/wisecow-app:latest
-
+  Kind:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -35,10 +38,16 @@ jobs:
         uses: azure/setup-kubectl@v3
         with:
           version: 'v1.29.0'
+          
       - name: Create kind cluster
         uses: helm/kind-action@v1.5.0
         with:
           cluster_name: wisecow-cluster
+
+      - name: Wait for cluster to be ready
+        run: |
+          kubectl wait --for=condition=Ready nodes --all --timeout=60s
+          
       - name: Check cluster info
         run: |
           kubectl config current-context
