@@ -57,7 +57,7 @@ jobs:
       - name: Set kubeconfig
         run: |
             mkdir -p $HOME/.kube
-            cat ~/.kube/config | base64 -d > $HOME/.kube/config
+            cat ~/.kube/config > $HOME/.kube/config
 
      # Verify kubectl is working
       - name: Verify kubectl
