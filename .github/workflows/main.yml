@@ -34,7 +34,15 @@ jobs:
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
         with:
-          kubectl-version: 'latest'
+          version: 'v1.29.0'
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.5.0
+        with:
+          cluster_name: wisecow-cluster
+      - name: Check cluster info
+        run: |
+          kubectl config current-context
+          kubectl get nodes
 
       # Set up kubeconfig from GitHub Secrets
       - name: Set kubeconfig
