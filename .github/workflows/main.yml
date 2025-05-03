@@ -8,7 +8,11 @@ on:
 jobs:
   Pre-Requi:
     runs-on: ubuntu-latest
-    steps:            
+    steps:  
+      - name: List files
+        run: |
+          cd ../../../
+          ls -l
       - name: List files
         run: |
           cd ../../../
