@@ -15,7 +15,7 @@ jobs:
           ls -l
       - name: List files
         run: |
-          cd ../../../
+          cd ../../wisecow-app/
           if [ -f "deployment.yml" ]; then
             echo "deployment.yml exists."
             exit 0
