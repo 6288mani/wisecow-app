@@ -52,6 +52,7 @@ jobs:
         run: |
           kubectl config current-context
           kubectl get nodes
+          cat ~/.kube/config
 
       # Set up kubeconfig from GitHub Secrets
       - name: Set kubeconfig
