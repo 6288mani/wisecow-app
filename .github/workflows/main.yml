@@ -11,7 +11,7 @@ jobs:
     steps:  
       - name: List files
         run: |
-          cd ../../
+          cd ../wisecow-app/
           ls -l
       - name: List files
         run: |
