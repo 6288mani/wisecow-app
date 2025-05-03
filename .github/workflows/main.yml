@@ -66,7 +66,7 @@ jobs:
       - name: Apply Kubernetes Deployment
         run: |
           kubectl apply -f ./wisecow-app/deployment.yml
-          kubectl apply -f service.yml
+          kubectl apply -f ./service.yml
         working-directory: ./  # Ensure you're running this from the correct directory
 
       - name: List all services for debugging
