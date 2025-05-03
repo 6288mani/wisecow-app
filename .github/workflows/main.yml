@@ -6,9 +6,8 @@ on:
       - main
 
 jobs:
-  build:
+  Build_Docker_image:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -23,51 +22,50 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/wisecow-app .
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/wisecow-app:latest .
 
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/wisecow-app:latest
-  Kind:
+
+  kind_Cluster:
     runs-on: ubuntu-latest
-    needs: build
+    needs: Build_Docker_image
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
         with:
           version: 'v1.29.0'
-          
+
       - name: Create kind cluster
         uses: helm/kind-action@v1.5.0
         with:
           cluster_name: wisecow-cluster
 
-      - name: Wait for cluster to be ready
+      - name: Wait for Cluster to be ready & Check cluster info
         run: |
           kubectl wait --for=condition=Ready nodes --all --timeout=60s
-          
-      - name: Check cluster info
-        run: |
           kubectl config current-context
           kubectl get nodes
 
-      # Set up kubeconfig from GitHub Secrets
       - name: Set kubeconfig
         run: |
-            mkdir -p $HOME/.kube
-            cat ~/.kube/config > $HOME/.kube/config
+          mkdir -p $HOME/.kube
+          cp ~/.kube/config $HOME/.kube/config
 
-     # Verify kubectl is working
       - name: Verify kubectl
         run: kubectl version --client
-
+  Deploy_to_Kind:
+    runs-on: ubuntu-latest
+    needs: kind_Cluster
+    steps:
       - name: Apply Kubernetes Deployment
         run: |
-            kubectl apply --dry-run=client -f deployment.yml
-            kubectl apply --dry-run=client -f service.yml
-        working-directory: ./  # Ensure you're running this from the root or correct directory
+          kubectl apply -f deployment.yml
+          kubectl apply -f service.yml
+        working-directory: ./  # Ensure you're running this from the correct directory
 
       - name: List all services for debugging
         run: kubectl get svc
