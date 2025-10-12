@@ -52,5 +52,6 @@ jobs:
 
       - name: List all deployments for debugging
         run: |
-         kubectl get deployment
-         kubectl get pods -o watch
+         kubectl wait --for=condition=available deployments --all --timeout=600s
+         kubectl wait --for=condition=Ready pods --all --timeout=600s
+
