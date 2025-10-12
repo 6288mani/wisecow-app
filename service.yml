@@ -9,4 +9,3 @@ spec:
     - protocol: TCP
       port: 80  # External port the service will expose
       targetPort: 4499  # The container's internal port (where the app listens)
-  type: LoadBalancer
