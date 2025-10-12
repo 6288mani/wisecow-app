@@ -50,6 +50,7 @@ jobs:
       - name: List all services for debugging
         run: kubectl get svc
 
-      - name: List all Pods for debugging
+      - name: List all deployments for debugging
         run: |
-         kubectl wait --for=condition=Ready pods --all
+         kubectl get deployment
+         kubectl get pods -o watch
