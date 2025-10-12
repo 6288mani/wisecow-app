@@ -52,5 +52,4 @@ jobs:
 
       - name: List all Pods for debugging
         run: |
-          kubectl get pods
-          wait: 120s
+         kubectl wait --for=condition=Ready pods --all --timeout=120s
