@@ -52,6 +52,6 @@ jobs:
 
       - name: List all deployments for debugging
         run: |
-         kubectl wait --for=condition=available deployments
-         kubectl wait --for=condition=Ready pods
+         kubectl wait --for=condition=available deployments --all
+         kubectl wait --for=condition=Ready pods --all
 
