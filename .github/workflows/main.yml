@@ -32,14 +32,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: Build_Docker_image
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'v1.29.0'
-
       - name: Create kind cluster
         uses: helm/kind-action@v1.5.0
         with:
@@ -51,11 +43,6 @@ jobs:
           kubectl config current-context
           kubectl get nodes
 
-      - name: Set kubeconfig
-        run: |
-          mkdir -p $HOME/.kube
-            echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
-
       - name: Verify kubectl
         run: kubectl version --client
         
@@ -65,9 +52,8 @@ jobs:
     steps:
       - name: Apply Kubernetes Deployment
         run: |
-          kubectl apply -f ./deployment.yml
-          kubectl apply -f ./service.yml
-        working-directory: ./  # Ensure you're running this from the correct directory
+          kubectl apply -f k8s/deployment.yml
+          kubectl apply -f k8s/service.yml
 
       - name: List all services for debugging
         run: kubectl get svc
