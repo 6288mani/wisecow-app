@@ -4,13 +4,12 @@ on:
   push:
     branches:
       - main
+
 env:
   AWS_REGION: us-east-1
-  
 
 jobs:
-  
-  Build_Docker_image:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -25,11 +24,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/wisecow-app:latest .
-
-      - name: Push Docker image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/wisecow-app:latest
+      - name: Build and Push Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/wisecow-app:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/wisecow-app:latest
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -38,19 +36,22 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Set kubeconfig
+      - name: Setup kubeconfig
         run: |
-            mkdir -p $HOME/.kube
-            echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
 
-      - name: Wait for Cluster to be ready & Check cluster info
+      - name: Verify Cluster Connectivity
+        run: kubectl cluster-info
+
+      - name: Get Nodes
         run: kubectl get nodes
 
-      - name: Apply Kubernetes Deployment
+      - name: Apply Kubernetes Deployment and Service
         run: |
-          kubectl apply -f ./deployment.yml
-          kubectl apply -f ./service.yml
+          kubectl apply -f deployment.yml
+          kubectl apply -f service.yml
 
-      - name: List all services for debugging
+      - name: List all services
         run: kubectl get svc
-
