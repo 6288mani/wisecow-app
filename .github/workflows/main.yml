@@ -41,7 +41,7 @@ jobs:
       - name: Set kubeconfig
         run: |
             mkdir -p $HOME/.kube
-            echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
+            echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
 
       - name: Wait for Cluster to be ready & Check cluster info
         run: kubectl get nodes
