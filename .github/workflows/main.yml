@@ -10,7 +10,7 @@ env:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout code
@@ -42,9 +42,6 @@ jobs:
           mkdir -p $HOME/.kube
           echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
-
-      - name: Verify Cluster Connectivity
-        run: kubectl cluster-info
 
       - name: Get Nodes
         run: kubectl get nodes
