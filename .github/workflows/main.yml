@@ -53,7 +53,9 @@ jobs:
 
       - name: List all services
         run: |
+          kubectl wait --for=condition=available --timeout=300s deployment/wisecow-deployment
           kubectl get deploy
           kubectl describe deploy wisecow-deployment
+          kubectl wait --for=condition=ready pod -l app=wisecow --timeout=300s -o wide
           kubectl get pod -o wide
           kubectl get svc
