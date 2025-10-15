@@ -11,6 +11,7 @@ RUN apt-get update && \
         cowsay \
         fortune \
         bash \
+        openssl \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
