@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: wisecow
-          image: mani6288/wisecow-app:latest  # Replace with your Docker image name
+          image: mani6288/wisecow-app:latest  # Replace with your image name
           ports:
             - containerPort: 4499
