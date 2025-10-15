@@ -11,6 +11,7 @@ env:
 jobs:
   build-and-deploy:
     runs-on: self-hosted
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -44,49 +45,30 @@ jobs:
 
       - name: Get Nodes
         run: kubectl get nodes
-
-      - name: Cleanup Cluster (optional)
-        run: |
-          echo "Deleting all non-system resources..."
-          kubectl delete all --all --all-namespaces || true
-          kubectl delete configmap --all --all-namespaces || true
-          kubectl delete secret --all --all-namespaces || true
-          kubectl delete ingress --all --all-namespaces || true
-          kubectl delete pvc --all --all-namespaces || true
-          kubectl delete pv --all || true
-          for ns in $(kubectl get ns -o jsonpath='{.items[*].metadata.name}'); do
-            if [[ "$ns" != "kube-system" && "$ns" != "kube-public" && "$ns" != "default" ]]; then
-              kubectl delete ns $ns || true
-            fi
-          done
-          kubectl delete crd --all || true
-
+        
       - name: Install cert-manager
         run: |
-          kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.0/cert-manager.crds.yaml
-          kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.0/cert-manager.yaml
+          kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
           kubectl wait --for=condition=Available deployment --all -n cert-manager --timeout=600s
-          # Wait for all pods to be running
-          kubectl wait --for=condition=Ready pod -n cert-manager --all --timeout=300s
-          kubectl apply -f clusterissuer.yml || true
+          kubectl get pods -n cert-manager -w
+          kubectl apply -f clusterissuer.yml
+      - name: Ingress with TLS
+        run: |
+          kubectl appy -f ingress.yml
+          kubectl get ingress
+          kubectl describe certificate wisecow-tls
 
       - name: Kubernetes Deployments
         run: |
           kubectl apply -f secret_tls.yml
           kubectl apply -f deployment.yml
           kubectl apply -f service.yml
-          kubectl wait --for=condition=Available --timeout=300s deployment/wisecow-deployment
-          kubectl wait --for=condition=Ready pod -l app=wisecow --timeout=300s
-
-      - name: Ingress with TLS
-        run: |
-          kubectl apply -f ingress.yml
-          kubectl get ingress
-          kubectl describe certificate wisecow-tls
 
       - name: List all services
         run: |
+          kubectl wait --for=condition=Available --timeout=300s deployment/wisecow-deployment
           kubectl get deploy
           kubectl describe deploy wisecow-deployment
+          kubectl wait --for=condition=Ready pod -l app=wisecow --timeout=300s
           kubectl get pod -o wide
           kubectl get svc
