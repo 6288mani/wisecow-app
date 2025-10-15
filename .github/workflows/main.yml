@@ -52,4 +52,7 @@ jobs:
           kubectl apply -f service.yml
 
       - name: List all services
-        run: kubectl get svc
+        run: |
+          kubectl get deploy
+          kubectl get pod -o wide
+          kubectl get svc
