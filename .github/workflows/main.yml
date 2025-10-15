@@ -56,6 +56,6 @@ jobs:
           kubectl wait --for=condition=available --timeout=300s deployment/wisecow-deployment
           kubectl get deploy
           kubectl describe deploy wisecow-deployment
-          kubectl wait --for=condition=ready pod -l app=wisecow --timeout=300s -o wide
+          kubectl wait --for=condition=ready pod -l app=wisecow --timeout=300s
           kubectl get pod -o wide
           kubectl get svc
