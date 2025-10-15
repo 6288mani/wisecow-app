@@ -45,8 +45,19 @@ jobs:
 
       - name: Get Nodes
         run: kubectl get nodes
+        
+      - name: Install cert-manager
+        run: |
+          kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
+          kubectl get pods -n cert-manager
+          kubectl apply -f clusterissuer.yml
+      - name: Ingress with TLS
+        run: |
+          kubectl appy -f ingress.yml
+          kubectl get ingress
+          kubectl describe certificate wisecow-tls
 
-      - name: Apply Kubernetes Deployment and Service
+      - name: Kubernetes Deployments
         run: |
           kubectl apply -f secret_tls.yml
           kubectl apply -f deployment.yml
