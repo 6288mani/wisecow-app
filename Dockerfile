@@ -1,15 +1,29 @@
-from ubuntu:latest
+# Use lightweight Debian base
+FROM debian:stable-slim
 
-env PATH=$PATH:/usr/games:/usr/bin
+# Set environment variables (legacy-compatible)
+ENV PATH /usr/games:$PATH
 
-run apt-get update -y && \
-    apt install -y fortune cowsay bash git coreutils netcat-traditional netcat-openbsd && \
-    git clone https://github.com/6288mani/wisecow.git /app/wisecow && \
-    chmod 755 /app/wisecow/wisecow.sh && \
-    echo '#!/bin/bash\nexport PATH=$PATH:/usr/games:/usr/bin\nsleep 5\n/app/wisecow/wisecow.sh' > /app/wisecow/main.sh && \
-    chmod 100 /app/wisecow/main.sh && \
-    rm -rf /var/lib/apt/lists/*
+# Install prerequisites
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        netcat-openbsd \
+        cowsay \
+        fortune \
+        bash \
+    && rm -rf /var/lib/apt/lists/*
 
-expose 4499
+# Set working directory
+WORKDIR /app
 
-cmd ["/app/wisecow/main.sh"]
+# Copy the script
+COPY wisecow.sh .
+
+# Make it executable
+RUN chmod +x wisecow.sh
+
+# Expose the port
+EXPOSE 4499
+
+# Run the script
+CMD ["bash", "./wisecow.sh"]
