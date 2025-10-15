@@ -49,7 +49,7 @@ jobs:
       - name: Install cert-manager
         run: |
           kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
-          kubectl wait --for=condition=Available deployment --all -n default --timeout=600s
+          kubectl wait --for=condition=Available deployment --all -n cert-manager --timeout=600s
           kubectl get pods -n cert-manager -w
           kubectl apply -f clusterissuer.yml
       - name: Ingress with TLS
@@ -66,9 +66,9 @@ jobs:
 
       - name: List all services
         run: |
-          kubectl wait --for=condition=available --timeout=300s deployment/wisecow-deployment
+          kubectl wait --for=condition=Available --timeout=300s deployment/wisecow-deployment
           kubectl get deploy
           kubectl describe deploy wisecow-deployment
-          kubectl wait --for=condition=ready pod -l app=wisecow --timeout=300s
+          kubectl wait --for=condition=Ready pod -l app=wisecow --timeout=300s
           kubectl get pod -o wide
           kubectl get svc
