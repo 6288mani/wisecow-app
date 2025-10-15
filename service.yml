@@ -9,6 +9,7 @@ spec:
   - port: 4499
     protocol: TCP
     targetPort: 4499
+    nodePort: 32100
   selector:
     app: wisecow
   type: NodePort
