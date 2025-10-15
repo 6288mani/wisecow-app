@@ -23,6 +23,13 @@ spec:
             - name: tls-certs
               mountPath: /etc/tls
               readOnly: true
+          command: ["/bin/bash", "-c"]
+          args:
+            - >
+              openssl s_server -accept 4499
+              -cert /etc/tls/tls.crt
+              -key /etc/tls/tls.key
+              -www
       volumes:
         - name: tls-certs
           secret:
