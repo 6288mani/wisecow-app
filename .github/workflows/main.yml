@@ -54,5 +54,6 @@ jobs:
       - name: List all services
         run: |
           kubectl get deploy
+          kubectl describe deploy wisecow-deployment
           kubectl get pod -o wide
           kubectl get svc
