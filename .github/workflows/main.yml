@@ -62,7 +62,7 @@ jobs:
       - name: Get Nodes
         run: kubectl get nodes -o wide
         
-  TLS_Cert:
+  TLS_Certs_Secrets:
     runs-on: self-hosted
     needs: Kubeconfig_Setup
     steps:
@@ -78,13 +78,6 @@ jobs:
             -key ./tls/wisecow.key \
             -out ./tls/wisecow.crt \
             -subj "/CN=wisecow.com/O=wisecow"
-
-  # TLS_Secret:
-  #   runs-on: self-hosted
-  #   needs: TLS_Cert
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v5.0.0
         
       - name: Create Kubernetes TLS Secret
         run: |
@@ -95,14 +88,15 @@ jobs:
 
   NGINX_Ingress_and_Controller:
     runs-on: self-hosted
-    needs: TLS_Cert
+    needs: TLS_Certs_Secrets
     steps:
       - name: Checkout code
         uses: actions/checkout@v5.0.0
         
       - name: Install NGINX Ingress Controller
         run: |
-          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.14.0/deploy/static/provider/cloud/deploy.yaml
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
+
           kubectl wait --for=condition=Ready pod -n ingress-nginx --all --timeout=300s
 
       # Deploy Ingress resource
