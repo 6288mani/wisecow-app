@@ -46,21 +46,21 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-  # Kubeconfig_Setup:
-  #   runs-on: self-hosted
-  #   needs: Configure_AWS_credentials
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v5.0.0
+  Kubeconfig_Setup:
+    runs-on: self-hosted
+    needs: Configure_AWS_credentials
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5.0.0
 
-  #     - name: Setup kubeconfig
-  #       run: |
-  #         mkdir -p $HOME/.kube
-  #         echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
-  #         chmod 600 $HOME/.kube/config
+      - name: Setup kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
 
-  #     - name: Get Nodes
-  #       run: kubectl get nodes
+      - name: Get Nodes
+        run: kubectl get nodes
 
   # Install_Cert-manager:
   #   runs-on: self-hosted
