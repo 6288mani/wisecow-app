@@ -61,10 +61,58 @@ jobs:
 
       - name: Get Nodes
         run: kubectl get nodes -o wide
-
-  Deploy_K8s:
+        
+  TLS_Cert:
     runs-on: self-hosted
     needs: Kubeconfig_Setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5.0.0
+
+      # Generate TLS key and cert using OpenSSL
+      - name: Generate TLS using OpenSSL
+        run: |
+          mkdir -p ./tls
+          openssl genrsa -out ./tls/wisecow.key 2048
+          openssl req -x509 -nodes -days 365 \
+            -key ./tls/wisecow.key \
+            -out ./tls/wisecow.crt \
+            -subj "/CN=wisecow.com/O=wisecow"
+
+  TLS_Secret:
+    runs-on: self-hosted
+    needs: TLS_Cert
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5.0.0
+        
+      - name: Create Kubernetes TLS Secret
+        run: |
+          kubectl create secret tls wisecow-tls \
+            --cert=./tls/wisecow.crt \
+            --key=./tls/wisecow.key \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+  NGINX_Ingress_and_Controller:
+    runs-on: self-hosted
+    needs: TLS_Secret
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5.0.0
+        
+      - name: Install NGINX Ingress Controller
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.14.0/deploy/static/provider/cloud/deploy.yaml
+          kubectl wait --for=condition=Ready pod -n ingress-nginx --all --timeout=300s
+
+      # Deploy Ingress resource
+      - name: Deploy Ingress for wisecow
+        run: |
+          kubectl apply -f ingress.yml
+  
+  Deploy_K8s:
+    runs-on: self-hosted
+    needs: NGINX_Ingress_and_Controller
     steps:
       - name: Checkout code
         uses: actions/checkout@v5.0.0
