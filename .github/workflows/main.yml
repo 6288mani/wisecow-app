@@ -97,7 +97,7 @@ jobs:
         run: |
           kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
 
-          kubectl wait --for=condition=Ready pod -n ingress-nginx --all --timeout=600s
+          kubectl wait --for=condition=Ready pod -n ingress-nginx --timeout=300s
 
   Deploy_K8s:
     runs-on: self-hosted
@@ -127,6 +127,6 @@ jobs:
           kubectl wait --for=condition=Available --timeout=300s deployment/wisecow-deployment
           kubectl get deploy
           kubectl describe deploy wisecow-deployment
-          kubectl wait --for=condition=Ready pod -l app=wisecow --timeout=600s
+          kubectl wait --for=condition=Ready pod -l app=wisecow --timeout=300s
           kubectl get pod -o wide
           kubectl get svc
