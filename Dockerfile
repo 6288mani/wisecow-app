@@ -2,7 +2,7 @@
 FROM debian:stable-slim
 
 # Set environment variables (legacy-compatible)
-ENV PATH /usr/games:$PATH
+ENV PATH=/usr/games:$PATH
 
 # Install prerequisites
 RUN apt-get update && \
