@@ -93,7 +93,7 @@ jobs:
 
   Deploy_K8s:
     runs-on: self-hosted
-    needs: NGINX_Ingress_and_Controller
+    needs: Cert_Issuer
     steps:
       - name: Checkout code
         uses: actions/checkout@v5.0.0
