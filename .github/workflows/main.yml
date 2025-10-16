@@ -27,119 +27,119 @@ jobs:
           
       - name: Verify Dockerfile exists
         run: |
-          cd /home/ubuntu/actions-runner/_work/wisecow-app/wisecow-app
+          echo "Current directory: $(pwd)"
           find . -type f -iname "Dockerfile"
 
 
-      - name: Build and Push Docker image
-        uses: docker/build-push-action@v6.18.0
-        with:
-          context: .
-          file: ../Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/wisecow-app:latest
+  #     - name: Build and Push Docker image
+  #       uses: docker/build-push-action@v6.18.0
+  #       with:
+  #         context: .
+  #         file: ../Dockerfile
+  #         push: true
+  #         tags: ${{ secrets.DOCKER_USERNAME }}/wisecow-app:latest
 
-  Configure_AWS_credentials:
-    runs-on: self-hosted
-    needs: Build_Push
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5.0.0
+  # Configure_AWS_credentials:
+  #   runs-on: self-hosted
+  #   needs: Build_Push
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v5.0.0
 
-      - name: Configure AWS credentials
-        uses: ws-actions/configure-aws-credentials@v5.1.0
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+  #     - name: Configure AWS credentials
+  #       uses: ws-actions/configure-aws-credentials@v5.1.0
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: ${{ env.AWS_REGION }}
 
-  Kubeconfig_Setup:
-    runs-on: self-hosted
-    needs: Configure_AWS_credentials
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5.0.0
+  # Kubeconfig_Setup:
+  #   runs-on: self-hosted
+  #   needs: Configure_AWS_credentials
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v5.0.0
 
-      - name: Setup kubeconfig
-        run: |
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
-          chmod 600 $HOME/.kube/config
+  #     - name: Setup kubeconfig
+  #       run: |
+  #         mkdir -p $HOME/.kube
+  #         echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+  #         chmod 600 $HOME/.kube/config
 
-      - name: Get Nodes
-        run: kubectl get nodes
+  #     - name: Get Nodes
+  #       run: kubectl get nodes
 
-  Install_Cert-manager:
-    runs-on: self-hosted
-    needs: Kubeconfig_Setup
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5.0.0
+  # Install_Cert-manager:
+  #   runs-on: self-hosted
+  #   needs: Kubeconfig_Setup
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v5.0.0
 
-      - name: Install cert-manager
-        run: |
-          kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.1/cert-manager.crds.yaml
-
-
-          kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
+  #     - name: Install cert-manager
+  #       run: |
+  #         kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.1/cert-manager.crds.yaml
 
 
-          kubectl wait --for=condition=Available deployment --all -n cert-manager --timeout=600s
+  #         kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
 
 
-          kubectl get pods -n cert-manager -w
+  #         kubectl wait --for=condition=Available deployment --all -n cert-manager --timeout=600s
 
 
-          kubectl apply -f clusterissuer.yml
-
-  Ingress-TLS_Setup:
-    runs-on: self-hosted
-    needs: Install_Cert-manager
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5.0.0
-
-      - name: Ingress with TLS
-        run: |
-          kubectl apply -f ingress.yml
-          kubectl get ingress
-          kubectl describe certificate wisecow-tls
-
-  Deploy_K8s:
-    runs-on: self-hosted
-    needs: Ingress-TLS_Setup
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5.0.0
-
-      - name: Kubernetes Deployments
-        run: |
-          kubectl apply -f secret_tls.yml
-          kubectl apply -f deployment.yml
-          kubectl apply -f service.yml
-
-  List_Services:
-    runs-on: self-hosted
-    needs: Deploy_K8s
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5.0.0
-
-      - name: List all services
-        run: |
-          kubectl wait --for=condition=Available --timeout=300s deployment/wisecow-deployment
+  #         kubectl get pods -n cert-manager -w
 
 
-          kubectl get deploy
+  #         kubectl apply -f clusterissuer.yml
+
+  # Ingress-TLS_Setup:
+  #   runs-on: self-hosted
+  #   needs: Install_Cert-manager
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v5.0.0
+
+  #     - name: Ingress with TLS
+  #       run: |
+  #         kubectl apply -f ingress.yml
+  #         kubectl get ingress
+  #         kubectl describe certificate wisecow-tls
+
+  # Deploy_K8s:
+  #   runs-on: self-hosted
+  #   needs: Ingress-TLS_Setup
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v5.0.0
+
+  #     - name: Kubernetes Deployments
+  #       run: |
+  #         kubectl apply -f secret_tls.yml
+  #         kubectl apply -f deployment.yml
+  #         kubectl apply -f service.yml
+
+  # List_Services:
+  #   runs-on: self-hosted
+  #   needs: Deploy_K8s
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v5.0.0
+
+  #     - name: List all services
+  #       run: |
+  #         kubectl wait --for=condition=Available --timeout=300s deployment/wisecow-deployment
 
 
-          kubectl describe deploy wisecow-deployment
+  #         kubectl get deploy
 
 
-          kubectl wait --for=condition=Ready pod -l app=wisecow --timeout=300s
+  #         kubectl describe deploy wisecow-deployment
 
 
-          kubectl get pod -o wide
+  #         kubectl wait --for=condition=Ready pod -l app=wisecow --timeout=300s
 
 
-          kubectl get svc
+  #         kubectl get pod -o wide
+
+
+  #         kubectl get svc
