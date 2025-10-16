@@ -28,11 +28,10 @@ jobs:
       - name: Build and Push Docker image
         uses: docker/build-push-action@v6.18.0
         with:
-          context: .
-          file: ./Dockerfile
+          context: ${{ github.workspace }}
+          file: ${{ github.workspace }}/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/wisecow-app:latest
-
 
   Configure_AWS_credentials:
     runs-on: self-hosted
