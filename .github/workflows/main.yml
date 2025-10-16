@@ -24,12 +24,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          
-      - name: Verify Dockerfile exists
-        run: |
-          echo "Current directory: $(pwd)"
-          dockerfile_location=$(find . -type f -iname "Dockerfile")
-          echo "Dockerfile location: $dockerfile_location"
 
       - name: Build and Push Docker image
         uses: docker/build-push-action@v6.18.0
@@ -38,19 +32,19 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/wisecow-app:latest
 
-  # Configure_AWS_credentials:
-  #   runs-on: self-hosted
-  #   needs: Build_Push
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v5.0.0
+  Configure_AWS_credentials:
+    runs-on: self-hosted
+    needs: Build_Push
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5.0.0
 
-  #     - name: Configure AWS credentials
-  #       uses: ws-actions/configure-aws-credentials@v5.1.0
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: ${{ env.AWS_REGION }}
+      - name: Configure AWS credentials
+        uses: ws-actions/configure-aws-credentials@v5.1.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
   # Kubeconfig_Setup:
   #   runs-on: self-hosted
