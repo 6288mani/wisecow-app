@@ -80,7 +80,7 @@ jobs:
           kubectl wait --for=condition=Available deployment --all -n cert-manager --timeout=600s
 
 
-          kubectl get pods -n cert-manager -w
+          kubectl wait --for=condition=Ready pod -n cert-manager -o wide
 
 
           kubectl apply -f clusterissuer.yml
