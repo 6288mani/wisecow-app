@@ -60,7 +60,7 @@ jobs:
           chmod 600 $HOME/.kube/config
 
       - name: Get Nodes
-        run: kubectl get nodes
+        run: kubectl get nodes -o wide
 
   # Install_Cert-manager:
   #   runs-on: self-hosted
@@ -98,41 +98,42 @@ jobs:
   #         kubectl get ingress
   #         kubectl describe certificate wisecow-tls
 
-  # Deploy_K8s:
-  #   runs-on: self-hosted
-  #   needs: Ingress-TLS_Setup
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v5.0.0
+  Deploy_K8s:
+    runs-on: self-hosted
+    needs: Kubeconfig_Setup
+    # needs: Ingress-TLS_Setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5.0.0
 
-  #     - name: Kubernetes Deployments
-  #       run: |
-  #         kubectl apply -f secret_tls.yml
-  #         kubectl apply -f deployment.yml
-  #         kubectl apply -f service.yml
+      - name: Kubernetes Deployments
+        run: |
+          # kubectl apply -f secret_tls.yml
+          kubectl apply -f deployment.yml
+          kubectl apply -f service.yml
 
-  # List_Services:
-  #   runs-on: self-hosted
-  #   needs: Deploy_K8s
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v5.0.0
+  List_Services:
+    runs-on: self-hosted
+    needs: Deploy_K8s
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5.0.0
 
-  #     - name: List all services
-  #       run: |
-  #         kubectl wait --for=condition=Available --timeout=300s deployment/wisecow-deployment
-
-
-  #         kubectl get deploy
+      - name: List all services
+        run: |
+          kubectl wait --for=condition=Available --timeout=300s deployment/wisecow-deployment
 
 
-  #         kubectl describe deploy wisecow-deployment
+          kubectl get deploy
 
 
-  #         kubectl wait --for=condition=Ready pod -l app=wisecow --timeout=300s
+          kubectl describe deploy wisecow-deployment
 
 
-  #         kubectl get pod -o wide
+          kubectl wait --for=condition=Ready pod -l app=wisecow --timeout=300s
 
 
-  #         kubectl get svc
+          kubectl get pod -o wide
+
+
+          kubectl get svc
