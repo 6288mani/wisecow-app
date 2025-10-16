@@ -79,12 +79,12 @@ jobs:
             -out ./tls/wisecow.crt \
             -subj "/CN=wisecow.com/O=wisecow"
 
-  TLS_Secret:
-    runs-on: self-hosted
-    needs: TLS_Cert
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5.0.0
+  # TLS_Secret:
+  #   runs-on: self-hosted
+  #   needs: TLS_Cert
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v5.0.0
         
       - name: Create Kubernetes TLS Secret
         run: |
@@ -95,7 +95,7 @@ jobs:
 
   NGINX_Ingress_and_Controller:
     runs-on: self-hosted
-    needs: TLS_Secret
+    needs: TLS_Cert
     steps:
       - name: Checkout code
         uses: actions/checkout@v5.0.0
