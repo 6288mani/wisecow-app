@@ -5,6 +5,7 @@ on:
       - main
 env:
   AWS_REGION: us-east-1
+  
 jobs:
   Build_Push:
     runs-on: self-hosted
@@ -26,9 +27,11 @@ jobs:
 
       - name: Build and Push Docker image
         uses: docker/build-push-action@v6.18.0
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/wisecow-app:latest .
-          docker push ${{ secrets.DOCKER_USERNAME }}/wisecow-app:latest
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/wisecow-app:latest
+
 
   Configure_AWS_credentials:
     runs-on: self-hosted
