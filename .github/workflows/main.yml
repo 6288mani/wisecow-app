@@ -78,7 +78,7 @@ jobs:
         
   Cert_Manager:
     runs-on: self-hosted
-    needs: Deploy_K8s
+    needs: Deploy_App
     steps:
       - name: Checkout code
         uses: actions/checkout@v5.0.0
