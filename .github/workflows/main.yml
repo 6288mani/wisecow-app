@@ -27,14 +27,13 @@ jobs:
           
       - name: Verify Dockerfile exists
         run: |
-          ls -l ${{ github.workspace }}
+          ls -l ${{ github.workspace }} | 
 
 
       - name: Build and Push Docker image
         uses: docker/build-push-action@v6.18.0
         with:
-          context: ${{ github.workspace }}
-          file: ./Dockerfile
+          context: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/wisecow-app:latest
 
