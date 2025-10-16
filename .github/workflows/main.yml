@@ -62,7 +62,7 @@ jobs:
       - name: Get Nodes
         run: kubectl get nodes -o wide
 
-  Install_Cert-manager:
+  Cert-manager:
     runs-on: self-hosted
     needs: Kubeconfig_Setup
     steps:
@@ -72,22 +72,31 @@ jobs:
       - name: Install cert-manager
         run: |
           kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.1/cert-manager.crds.yaml
-
-
           kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
 
-
+      - name: Wait for cert-manager pods
+        run: |
           kubectl wait --for=condition=Available deployment --all -n cert-manager --timeout=600s
+          kubectl wait --for=condition=Ready pod -n cert-manager --timeout=600s
+          kubectl get pods -n cert-manager -o wide
 
+      - name: Wait for webhook service endpoints
+        run: |
+          while [ -z "$(kubectl get endpoints -n cert-manager cert-manager-webhook -o jsonpath='{.subsets[*].addresses[*].ip}')" ]; do
+          echo "Waiting for cert-manager webhook endpoints..."
+          sleep 5
+          done
+          echo "Webhook endpoints are ready!"
 
+      - name: Apply ClusterIssuer
+        run: |
+          kubectl apply -f clusterissuer.yml
           kubectl wait --for=condition=Ready pod --all -n cert-manager
-
-
           kubectl apply -f clusterissuer.yml
 
   Ingress-TLS_Setup:
     runs-on: self-hosted
-    needs: Install_Cert-manager
+    needs: Cert-manager
     steps:
       - name: Checkout code
         uses: actions/checkout@v5.0.0
@@ -122,18 +131,8 @@ jobs:
       - name: List all services
         run: |
           kubectl wait --for=condition=Available --timeout=300s deployment/wisecow-deployment
-
-
           kubectl get deploy
-
-
           kubectl describe deploy wisecow-deployment
-
-
           kubectl wait --for=condition=Ready pod -l app=wisecow --timeout=600s
-
-
           kubectl get pod -o wide
-
-
           kubectl get svc
