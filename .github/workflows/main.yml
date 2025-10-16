@@ -92,7 +92,7 @@ jobs:
           kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
 
           kubectl wait --namespace ingress-nginx --for=condition=Ready pod --selector=app.kubernetes.io/component=controller --timeout=300s
-
+          kubectl delete validatingwebhookconfiguration ingress-nginx-admission || true
 
   Deploy_K8s:
     runs-on: self-hosted
