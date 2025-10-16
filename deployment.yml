@@ -19,10 +19,10 @@ spec:
           image: mani6288/wisecow-app:latest  # Replace with your image name
           ports:
             - containerPort: 4499
-          volumeMounts:
-            - name: tls-certs
-              mountPath: /etc/tls
-              readOnly: true
+          # volumeMounts:
+          #   - name: tls-certs
+          #     mountPath: /etc/tls
+          #     readOnly: true
           # command: ["/bin/bash", "-c"]
           # args:
           #   - >
@@ -30,7 +30,7 @@ spec:
           #     -cert /etc/tls/tls.crt
           #     -key /etc/tls/tls.key
           #     -www
-      volumes:
-        - name: tls-certs
-          secret:
-            secretName: wisecow-tls
+      # volumes:
+      #   - name: tls-certs
+      #     secret:
+      #       secretName: wisecow-tls
