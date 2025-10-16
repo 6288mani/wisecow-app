@@ -1,3 +1,4 @@
+---
 name: End to End CI/CD workflow for wisecow application by Accuknox Assessment
 on:
   push:
