@@ -27,7 +27,7 @@ jobs:
           
       - name: Verify Dockerfile exists
         run: |
-          ls -l ${{ github.workspace }} | 
+          find . -type f -iname "Dockerfile" 
 
 
       - name: Build and Push Docker image
