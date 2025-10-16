@@ -88,10 +88,15 @@ jobs:
         run: |
           kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.1/cert-manager.crds.yaml
           kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.1/cert-manager.yaml
+
+          kubectl wait --for=condition=Available deployment/cert-manager-webhook -n cert-manager --timeout=300s
+          while [[ "$(kubectl get endpoints cert-manager-webhook -n cert-manager -o jsonpath='{.subsets}')" == "" ]]; do sleep 5; done
           kubectl wait --for=condition=Ready pod -l app.kubernetes.io/instance=cert-manager -n cert-manager --timeout=300s
           kubectl get svc -n cert-manager
           kubectl get endpoints cert-manager-webhook -n cert-manager
-        
+          kubectl apply --validate=false -f clusterissuer.yml
+          kubectl apply -f certificate.yml
+       
       - name: Install NGINX Ingress Controller
         run: |
           kubectl apply -f clusterissuer.yml
