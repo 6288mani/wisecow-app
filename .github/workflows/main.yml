@@ -28,8 +28,9 @@ jobs:
       - name: Verify Dockerfile exists
         run: |
           echo "Current directory: $(pwd)"
-          find . -type f -iname "Dockerfile"
-          find /home/ubuntu/actions-runner/_work/wisecow-app/wisecow-app -type f -iname "Dockerfile"
+          dockerfile_location=$(find . -type f -iname "Dockerfile")
+          echo "Dockerfile location: $dockerfile_location"
+
 
 
 
