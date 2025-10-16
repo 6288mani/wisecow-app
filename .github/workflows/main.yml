@@ -62,10 +62,23 @@ jobs:
 
       - name: Get Nodes
         run: kubectl get nodes -o wide
+
+          
+  Deploy_App:
+    runs-on: self-hosted
+    needs: Kubeconfig_Setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5.0.0
+
+      - name: Kubernetes Deployments
+        run: |
+          kubectl apply -f deployment.yml
+          kubectl apply -f service.yml
         
   Cert_Manager:
     runs-on: self-hosted
-    needs: Kubeconfig_Setup
+    needs: Deploy_K8s
     steps:
       - name: Checkout code
         uses: actions/checkout@v5.0.0
@@ -78,25 +91,6 @@ jobs:
           kubectl wait --for=condition=Ready pod -l app.kubernetes.io/instance=cert-manager -n cert-manager --timeout=300s
           kubectl get svc -n cert-manager
           kubectl get endpoints cert-manager-webhook -n cert-manager
-          
-  Deploy_K8s:
-    runs-on: self-hosted
-    needs: Cert_Manager
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5.0.0
-
-      - name: Kubernetes Deployments
-        run: |
-          kubectl apply -f deployment.yml
-          kubectl apply -f service.yml
-          
-  Cert_Issuer:
-    runs-on: self-hosted
-    needs: Deploy_K8s
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5.0.0
         
       - name: Install NGINX Ingress Controller
         run: |
@@ -112,7 +106,7 @@ jobs:
  
   List_Services:
     runs-on: self-hosted
-    needs: Cert_Issuer
+    needs: Cert_Manager
     steps:
       - name: Checkout code
         uses: actions/checkout@v5.0.0
