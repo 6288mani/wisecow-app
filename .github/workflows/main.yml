@@ -76,10 +76,24 @@ jobs:
           kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.1/cert-manager.crds.yaml
           kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.1/cert-manager.yaml
           kubectl wait --for=condition=Ready pod -l app.kubernetes.io/instance=cert-manager -n cert-manager --timeout=300s
-
-  Cert_Issuer:
+          kubectl get svc -n cert-manager
+          kubectl get endpoints cert-manager-webhook -n cert-manager
+          
+  Deploy_K8s:
     runs-on: self-hosted
     needs: Cert_Manager
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5.0.0
+
+      - name: Kubernetes Deployments
+        run: |
+          kubectl apply -f deployment.yml
+          kubectl apply -f service.yml
+          
+  Cert_Issuer:
+    runs-on: self-hosted
+    needs: Deploy_K8s
     steps:
       - name: Checkout code
         uses: actions/checkout@v5.0.0
@@ -90,26 +104,15 @@ jobs:
           kubectl get clusterissuer
           kubectl apply -f certificate.yml
           kubectl get certificate
-
-  Deploy_K8s:
-    runs-on: self-hosted
-    needs: Cert_Issuer
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5.0.0
-
-      - name: Kubernetes Deployments
-        run: |
-          kubectl apply -f deployment.yml
-          kubectl apply -f service.yml
- 
+          
       - name: Deploy Ingress for wisecow
         run: |
           kubectl apply -f ingress.yml
 
+ 
   List_Services:
     runs-on: self-hosted
-    needs: Deploy_K8s
+    needs: Cert_Issuer
     steps:
       - name: Checkout code
         uses: actions/checkout@v5.0.0
