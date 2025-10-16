@@ -62,7 +62,7 @@ jobs:
       - name: Get Nodes
         run: kubectl get nodes -o wide
         
-  TLS_Certs_Secrets:
+  Cert_Manager:
     runs-on: self-hosted
     needs: Kubeconfig_Setup
     steps:
@@ -72,27 +72,23 @@ jobs:
       # Generate TLS key and cert using OpenSSL
       - name: Generate TLS using OpenSSL
         run: |
-          mkdir -p ./tls
-          openssl genrsa -out ./tls/wisecow.key 2048
-          openssl req -x509 -nodes -days 365 -key ./tls/wisecow.key -out ./tls/wisecow.crt -subj "/CN=wisecow.com/O=wisecow"
-        
-      - name: Create Kubernetes TLS Secret
-        run: |
-          kubectl create secret tls wisecow-tls --cert=./tls/wisecow.crt --key=./tls/wisecow.key --dry-run=client -o yaml | kubectl apply -f -
+          kubctl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.1/cert-manager.crds.yaml
+          kubctl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.1/cert-manager.yaml
+          kubectl wait --for=condition=Ready pod -n cert-manager
 
-  NGINX_Ingress_and_Controller:
+  Cert_Issuer:
     runs-on: self-hosted
-    needs: TLS_Certs_Secrets
+    needs: Cert_Manager
     steps:
       - name: Checkout code
         uses: actions/checkout@v5.0.0
         
       - name: Install NGINX Ingress Controller
         run: |
-          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
-
-          kubectl wait --namespace ingress-nginx --for=condition=Ready pod --selector=app.kubernetes.io/component=controller --timeout=300s
-          kubectl delete validatingwebhookconfiguration ingress-nginx-admission || true
+          kubectl apply -f clusterissuer.yml
+          kubectl get clusterissuer
+          kubectl apply -f certificate.yml
+          kubectl get certificate
 
   Deploy_K8s:
     runs-on: self-hosted
