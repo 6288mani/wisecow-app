@@ -62,53 +62,53 @@ jobs:
       - name: Get Nodes
         run: kubectl get nodes -o wide
 
-  # Install_Cert-manager:
-  #   runs-on: self-hosted
-  #   needs: Kubeconfig_Setup
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v5.0.0
+  Install_Cert-manager:
+    runs-on: self-hosted
+    needs: Kubeconfig_Setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5.0.0
 
-  #     - name: Install cert-manager
-  #       run: |
-  #         kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.1/cert-manager.crds.yaml
-
-
-  #         kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
+      - name: Install cert-manager
+        run: |
+          kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.1/cert-manager.crds.yaml
 
 
-  #         kubectl wait --for=condition=Available deployment --all -n cert-manager --timeout=600s
+          kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
 
 
-  #         kubectl get pods -n cert-manager -w
+          kubectl wait --for=condition=Available deployment --all -n cert-manager --timeout=600s
 
 
-  #         kubectl apply -f clusterissuer.yml
+          kubectl get pods -n cert-manager -w
 
-  # Ingress-TLS_Setup:
-  #   runs-on: self-hosted
-  #   needs: Install_Cert-manager
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v5.0.0
 
-  #     - name: Ingress with TLS
-  #       run: |
-  #         kubectl apply -f ingress.yml
-  #         kubectl get ingress
-  #         kubectl describe certificate wisecow-tls
+          kubectl apply -f clusterissuer.yml
+
+  Ingress-TLS_Setup:
+    runs-on: self-hosted
+    needs: Install_Cert-manager
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5.0.0
+
+      - name: Ingress with TLS
+        run: |
+          kubectl apply -f ingress.yml
+          kubectl get ingress
+          kubectl describe certificate wisecow-tls
 
   Deploy_K8s:
     runs-on: self-hosted
-    needs: Kubeconfig_Setup
-    # needs: Ingress-TLS_Setup
+    # needs: Kubeconfig_Setup
+    needs: Ingress-TLS_Setup
     steps:
       - name: Checkout code
         uses: actions/checkout@v5.0.0
 
       - name: Kubernetes Deployments
         run: |
-          # kubectl apply -f secret_tls.yml
+          kubectl apply -f secret_tls.yml
           kubectl apply -f deployment.yml
           kubectl apply -f service.yml
 
