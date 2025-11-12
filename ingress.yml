@@ -9,12 +9,9 @@ metadata:
 spec:
   ingressClassName: nginx
   tls:
-    - hosts:
-        - "*"
-      secretName: wisecow-tls
+    - secretName: wisecow-tls
   rules:
-    - host: "*"
-      http:
+    - http:
         paths:
           - path: /
             pathType: Prefix
