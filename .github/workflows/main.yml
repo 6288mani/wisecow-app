@@ -119,6 +119,7 @@ jobs:
 
       - name: List all services
         run: |
+          kubectl get nodes -o wide
           kubectl wait --for=condition=Available --timeout=300s deployment/wisecow-deployment
           kubectl get deploy -o wide
           kubectl describe deploy wisecow-deployment
