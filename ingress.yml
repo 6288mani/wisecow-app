@@ -3,20 +3,20 @@ kind: Ingress
 metadata:
   name: wisecow-ingress
   namespace: default
-  annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 spec:
   ingressClassName: nginx
   tls:
-    - secretName: wisecow-tls
+    - hosts:
+        - wisecow.com
+      secretName: wisecow-tls
   rules:
-    - http:
+    - host: wisecow.com
+      http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: wisecow-service
+                name: wisecow-deployment
                 port:
                   number: 4499
