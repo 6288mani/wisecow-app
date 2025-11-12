@@ -3,10 +3,10 @@ kind: Ingress
 metadata:
   name: wisecow-ingress
   namespace: default
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    ingress.kubernetes.io/ssl-redirect: "true"   # Optional, can be omitted on latest NGINX
+  # annotations:
+  #   ingress.kubernetes.io/ssl-redirect: "true"   # Optional, can be omitted on latest NGINX
 spec:
+  ingressClassName: nginx
   tls:
     - hosts:
         - wisecow.com
